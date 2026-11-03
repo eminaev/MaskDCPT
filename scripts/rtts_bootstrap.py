@@ -1,5 +1,7 @@
 import argparse
 import json
+import os
+from multiprocessing import get_context
 
 import numpy as np
 from ultralytics import YOLO
@@ -33,6 +35,32 @@ def score(images, picks):
     return dict(zip(result[6].tolist(), result[5][:, 0].tolist()))
 
 
+SHARED = {}
+
+
+def share(base, treated):
+    SHARED["base"], SHARED["treated"] = base, treated
+
+
+def round_scores(picks):
+    return score(SHARED["base"], picks), score(SHARED["treated"], picks)
+
+
+def differences(base, treated, rounds, seed, workers):
+    generator = np.random.default_rng(seed)
+    draws = [generator.integers(0, len(base), len(base)) for _ in range(rounds)]
+    gaps = {kind: [] for kind in [*score(base, np.arange(len(base))), "all"]}
+    share(base, treated)
+    with get_context("fork").Pool(workers, initializer=share, initargs=(base, treated)) as pool:
+        for index, (left, right) in enumerate(pool.imap(round_scores, draws, chunksize=4), 1):
+            for kind in left:
+                gaps[kind].append(right[kind] - left[kind])
+            gaps["all"].append(np.mean(list(right.values())) - np.mean(list(left.values())))
+            if index % 100 == 0:
+                print(f"round {index}/{rounds}", flush=True)
+    return gaps
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--weights", default="pretrained_models/yolov8s.pt")
@@ -42,6 +70,7 @@ def main():
     parser.add_argument("--rounds", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--out", default="results/yolo/bootstrap.json")
+    parser.add_argument("--workers", type=int, default=os.cpu_count())
     args = parser.parse_args()
     base = statistics(args.weights, args.base, args.imgsz)
     treated = statistics(args.weights, args.treated, args.imgsz)
@@ -51,16 +80,7 @@ def main():
         raise ValueError("Runs visited images in different order, so they cannot be paired")
     everything = np.arange(len(base))
     full = {"base": score(base, everything), "treated": score(treated, everything)}
-    generator = np.random.default_rng(args.seed)
-    gaps = {kind: [] for kind in [*full["base"], "all"]}
-    for round in range(args.rounds):
-        picks = generator.integers(0, len(base), len(base))
-        left, right = score(base, picks), score(treated, picks)
-        for kind in left:
-            gaps[kind].append(right[kind] - left[kind])
-        gaps["all"].append(np.mean(list(right.values())) - np.mean(list(left.values())))
-        if (round + 1) % 100 == 0:
-            print(f"round {round + 1}/{args.rounds}", flush=True)
+    gaps = differences(base, treated, args.rounds, args.seed, args.workers)
     summary = {
         "images": len(base),
         "rounds": args.rounds,
