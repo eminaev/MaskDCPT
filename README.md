@@ -1,5 +1,7 @@
 # Universal Image Restoration Pre-training via Masked Degradation Classification
 
+> This fork adds Study II of "Enhance, Restore, or Adapt? An Empirical Study of YOLO Object Detection under Adverse Imaging Conditions": NAFNetMobile, its distillation, and its evaluation in front of YOLO detectors. See [STUDY2.md](STUDY2.md).
+
 [JiaKui Hu](https://scholar.google.com/citations?user=VagFt-sAAAAJ), [Zhengjian Yao](https://scholar.google.com/citations?user=D8rEFlEAAAAJ), [Lujia Jin](https://scholar.google.com/citations?user=-BWasB8AAAAJ), [Yinghao Chen](), [Yanye Lu](https://scholar.google.com/citations?user=WSFToOMAAAAJ)*
 
 MILab, Peking University

@@ -1,0 +1,86 @@
+name: NAFNetMobile_S_5d
+suffix: null
+model_type: SRModel
+scale: 1
+crop_border: 0
+num_gpu: 1
+manual_seed: 0
+eval_lpips: true
+datasets:
+  test_1:
+    name: Rain100L
+    type: PairedImageDataset
+    dataroot_gt: datasets/derain/Rain100L/target
+    dataroot_lq: datasets/derain/Rain100L/input
+    io_backend:
+      type: disk
+  test_2:
+    name: CBSD68
+    type: PairedImageDenoiseDataset
+    dataroot_gt: datasets/denoise/CBSD68
+    io_backend:
+      type: disk
+    sigma_type: constant
+    sigma_range: 25
+  test_3:
+    name: SOTS
+    type: PairedImageDehazeDataset
+    dataroot_gt: datasets/dehaze/SOTS/outdoor/gt
+    dataroot_lq: datasets/dehaze/SOTS/outdoor/hazy
+    io_backend:
+      type: disk
+    suffix: .png
+  test_4:
+    name: LowLight
+    type: PairedImageDataset
+    dataroot_gt: datasets/lowlight/lol_v1_eval/high
+    dataroot_lq: datasets/lowlight/lol_v1_eval/low
+    io_backend:
+      type: disk
+    hist: false
+  test_5:
+    name: Gopro
+    type: PairedImageDataset
+    dataroot_gt: datasets/deblur/GoPro/target
+    dataroot_lq: datasets/deblur/GoPro/input
+    io_backend:
+      type: disk
+network_g:
+  type: NAFNetMobile
+  width: 16
+  enc_blk_nums:
+  - 1
+  - 1
+  - 2
+  - 4
+  middle_blk_num: 1
+  dec_blk_nums:
+  - 1
+  - 1
+  - 1
+  - 1
+  window_size: 16
+path:
+  pretrain_network_g: experiments/mobile_v4_feat/nafnet_mobile_S.pth
+  param_key_g: params
+  strict_load_g: true
+val:
+  save_img: false
+  suffix: null
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+      image_range: 1.0
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+      image_range: 1.0
+    nrmse:
+      type: calculate_nrmse
+      crop_border: 0
+      better: lower
+      test_y_channel: false
+      image_range: 1.0

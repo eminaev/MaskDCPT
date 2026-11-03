@@ -137,3 +137,10 @@ metric.py
 plot.py
 *.csv
 *.log
+
+# Study II
+!results/yolo/
+results/yolo/*
+!results/yolo/*.json
+*.pt
+*.ts
