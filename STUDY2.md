@@ -2,6 +2,7 @@
 
 This fork of [MILab-PKU/MaskDCPT](https://github.com/MILab-PKU/MaskDCPT) contains the code and results of Study II of the paper "Enhance, Restore, or Adapt? An Empirical Study of YOLO Object Detection under Adverse Imaging Conditions".
 Study II distills the MaskDCPT NAFNet 5D model into NAFNetMobile and tests the distilled network as a preprocessing stage for YOLOv8s, YOLO11s, and YOLO26s on RTTS and BDD100K.
+It also repeats the Study I matrix of five classical enhancement operators on BDD100K with the paired bootstrap.
 
 ## Contents
 
@@ -15,11 +16,13 @@ Study II distills the MaskDCPT NAFNet 5D model into NAFNetMobile and tests the d
 | `scripts/bdd_to_yolo.py` | BDD100K validation annotations to YOLO labels with COCO class IDs and the rain, snow, and night subsets | Section 3.6 |
 | `scripts/restore_folder.py` | Restoration of an image folder with M | Section 3.4 |
 | `scripts/rtts_bootstrap.py` | Detector evaluation with the paired bootstrap over images | Table 8, Figure 5 |
+| `scripts/enhance.py` | CLAHE, gamma correction, DCP, single-scale Retinex, and MSRCR with the parameters of Section 3.3 | Section 3.3 |
+| `scripts/enhancement_bootstrap.sh` | Enhancement of BDD100K with every operator and the paired bootstrap for three detectors and four subsets | Section 4.2, Table A6 |
 | `scripts/pipeline_latency.py` | Latency of the detector, of M, and of the whole pipeline | Table 9 |
 | `scripts/study2.sh` | All steps above in order | — |
 | `options/local/` | Restoration test configs and YOLO dataset configs | — |
-| `results/yolo/*.json` | Bootstrap and latency results used in the paper | Tables 8 and 9 |
-| `tests/` | Unit tests for the new architecture, loss, and export | — |
+| `results/yolo/*.json` | Bootstrap and latency results used in the paper | Tables 8, 9, and A6 |
+| `tests/` | Unit tests for the new architecture, loss, export, operators, and parallel bootstrap | — |
 
 ## Environment
 
@@ -36,6 +39,14 @@ RESTORE_PYTHON=~/anaconda3/envs/maskdcpt/bin/python DETECT_PYTHON=~/anaconda3/en
 
 Add `TRAIN=1` to repeat the distillation, which takes about 13 hours on an RTX 4090.
 Without it, the runner expects the released weights in `experiments/mobile_v4_feat/`.
+
+The classical operator matrix runs separately with the same variables and expects the original BDD100K subset prepared by `scripts/study2.sh`:
+
+```bash
+RESTORE_PYTHON=~/anaconda3/envs/maskdcpt/bin/python DETECT_PYTHON=~/anaconda3/envs/yolo/bin/python scripts/enhancement_bootstrap.sh
+```
+
+It writes about 48 GB of PNG images, and its bootstrap takes about five hours with 32 CPU workers.
 
 ## Weights
 
@@ -72,6 +83,8 @@ This leaves 151,222 boxes in 10,000 images.
 
 Each bootstrap file holds the full-set metrics of both inputs and the mean and 95% interval of the mAP50 difference, overall (`gap.all`) and per COCO class.
 `bootstrap.json` and `latency.json` belong to YOLOv8s; the other files carry the detector name.
+Files named `bdd_enhance_<operator>_<detector>_<subset>.json` hold the classical operator matrix; their DCP omits guided-filter refinement of the transmission.
+The bootstrap draws all resamples from one generator before scoring them in parallel, so results do not depend on the number of workers.
 
 ## License
 
