@@ -4,26 +4,47 @@
   "gain": 4,
   "fewer_false": 1,
   "objects": 27,
-  "images": 4076,
-  "improved": 370,
-  "worsened": 274
+  "eligible": {
+   "images": 4076,
+   "improved": 370,
+   "worsened": 274
+  },
+  "all": {
+   "images": 4322,
+   "improved": 442,
+   "worsened": 371
+  }
  },
  "night": {
   "stem": "bcf483bd-153ab23c",
   "gain": -10,
   "fewer_false": -5,
   "objects": 20,
-  "images": 3836,
-  "improved": 649,
-  "worsened": 1054
+  "eligible": {
+   "images": 3836,
+   "improved": 649,
+   "worsened": 1054
+  },
+  "all": {
+   "images": 3929,
+   "improved": 673,
+   "worsened": 1075
+  }
  },
  "snow": {
   "stem": "b8c3f870-c6c86746",
   "gain": 3,
   "fewer_false": 3,
   "objects": 22,
-  "images": 736,
-  "improved": 169,
-  "worsened": 115
+  "eligible": {
+   "images": 736,
+   "improved": 169,
+   "worsened": 115
+  },
+  "all": {
+   "images": 769,
+   "improved": 178,
+   "worsened": 122
+  }
  }
 }

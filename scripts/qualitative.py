@@ -72,6 +72,10 @@ def outcome(model, folder, stem, classes):
     return {"kinds": kinds, "boxes": boxes, "targets": targets, "hit": hit, "found": found}
 
 
+def tally(gains):
+    return {"images": len(gains), "improved": sum(gain[0] > 0 for gain in gains), "worsened": sum(gain[0] < 0 for gain in gains)}
+
+
 def select():
     model = YOLO(os.path.join(ROOT, "pretrained_models/yolov8s.pt"))
     picks = {}
@@ -80,8 +84,8 @@ def select():
         for stem in stems(spec):
             base, treated = outcome(model, spec["base"], stem, spec["classes"]), outcome(model, spec["treated"], stem, spec["classes"])
             gains.append((int(treated["hit"].sum() - base["hit"].sum()), int((~base["hit"]).sum() - (~treated["hit"]).sum()), len(base["targets"]), stem))
-        gains = sorted((gain for gain in gains if 0 < gain[2] <= 30), reverse=name != "night")
-        picks[name] = {"stem": gains[0][3], "gain": gains[0][0], "fewer_false": gains[0][1], "objects": gains[0][2], "images": len(gains), "improved": sum(gain[0] > 0 for gain in gains), "worsened": sum(gain[0] < 0 for gain in gains)}
+        eligible = sorted((gain for gain in gains if 0 < gain[2] <= 30), reverse=name != "night")
+        picks[name] = {"stem": eligible[0][3], "gain": eligible[0][0], "fewer_false": eligible[0][1], "objects": eligible[0][2], "eligible": tally(eligible), "all": tally(gains)}
         print(name, picks[name], flush=True)
     json.dump(picks, open(PICKS, "w"), indent=1)
 

@@ -7,7 +7,7 @@ from hamcrest import assert_that, equal_to
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
 
-from qualitative import matching
+from qualitative import matching, tally
 
 
 def boxes(generator, count):
@@ -34,3 +34,9 @@ def test_two_predictions_cannot_claim_one_target():
     targets = boxes(generator, 1)
     hit, _ = matching(np.array([0, 0]), np.concatenate([targets, targets]), np.array([0]), targets)
     assert_that(int(hit.sum()), equal_to(1), "one target is matched twice")
+
+
+def test_tally_counts_images_where_true_positives_rose_and_fell():
+    rises, falls, ties = random.randint(1, 9), random.randint(1, 9), random.randint(0, 9)
+    gains = [(random.randint(1, 5), 0, 3, "a")] * rises + [(-random.randint(1, 5), 0, 3, "b")] * falls + [(0, 0, 3, "c")] * ties
+    assert_that(tally(gains), equal_to({"images": rises + falls + ties, "improved": rises, "worsened": falls}), "tally miscounts the images")
