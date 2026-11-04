@@ -18,11 +18,12 @@ It also repeats the Study I matrix of five classical enhancement operators on BD
 | `scripts/rtts_bootstrap.py` | Detector evaluation with the paired bootstrap over images | Table 8, Figure 5 |
 | `scripts/enhance.py` | CLAHE, gamma correction, DCP, single-scale Retinex, and MSRCR with the parameters of Section 3.3 | Section 3.3 |
 | `scripts/enhancement_bootstrap.sh` | Enhancement of BDD100K with every operator and the paired bootstrap for three detectors and four subsets | Section 4.2, Table A6 |
+| `scripts/qualitative.py` | Selection of the example images and drawing of the qualitative figures | Section 4.5, Figures 7 and 8 |
 | `scripts/pipeline_latency.py` | Latency of the detector, of M, and of the whole pipeline | Table 9 |
 | `scripts/study2.sh` | All steps above in order | — |
 | `options/local/` | Restoration test configs and YOLO dataset configs | — |
 | `results/yolo/*.json` | Bootstrap and latency results used in the paper | Tables 8, 9, and A6 |
-| `tests/` | Unit tests for the new architecture, loss, export, operators, and parallel bootstrap | — |
+| `tests/` | Unit tests for the new architecture, loss, export, operators, parallel bootstrap, and box matching | — |
 
 ## Environment
 
@@ -47,6 +48,15 @@ RESTORE_PYTHON=~/anaconda3/envs/maskdcpt/bin/python DETECT_PYTHON=~/anaconda3/en
 ```
 
 It writes about 48 GB of PNG images, and its bootstrap takes about five hours with 32 CPU workers.
+
+The qualitative figures need the restored and CLAHE images from both runners.
+`select` picks the examples into `results/yolo/qualitative.json`, and the other two commands draw Figures 7 and 8 into the given folder:
+
+```bash
+~/anaconda3/envs/yolo/bin/python scripts/qualitative.py select
+~/anaconda3/envs/yolo/bin/python scripts/qualitative.py appearance figures
+~/anaconda3/envs/yolo/bin/python scripts/qualitative.py detections figures
+```
 
 ## Weights
 
@@ -84,6 +94,7 @@ This leaves 151,222 boxes in 10,000 images.
 Each bootstrap file holds the full-set metrics of both inputs and the mean and 95% interval of the mAP50 difference, overall (`gap.all`) and per COCO class.
 `bootstrap.json` and `latency.json` belong to YOLOv8s; the other files carry the detector name.
 Files named `bdd_enhance_<operator>_<detector>_<subset>.json` hold the classical operator matrix; their DCP omits guided-filter refinement of the transmission.
+`qualitative.json` names the selected images and counts, for each subset, the images on which the treatment raised or lowered the number of YOLOv8s true positives; these counts cover only images with 1 to 30 annotated objects.
 The bootstrap draws all resamples from one generator before scoring them in parallel, so results do not depend on the number of workers.
 
 ## License
