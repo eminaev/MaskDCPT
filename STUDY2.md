@@ -94,7 +94,7 @@ This leaves 151,222 boxes in 10,000 images.
 Each bootstrap file holds the full-set metrics of both inputs and the mean and 95% interval of the mAP50 difference, overall (`gap.all`) and per COCO class.
 `bootstrap.json` and `latency.json` belong to YOLOv8s; the other files carry the detector name.
 Files named `bdd_enhance_<operator>_<detector>_<subset>.json` hold the classical operator matrix; their DCP omits guided-filter refinement of the transmission.
-`qualitative.json` names the selected images and counts, for each subset, the images on which the treatment raised or lowered the number of YOLOv8s true positives; these counts cover only images with 1 to 30 annotated objects.
+`qualitative.json` names the selected images and counts, for each subset, the images on which the treatment raised or lowered the number of YOLOv8s true positives, over all images (`all`, the numbers in Section 4.5) and over the images with 1 to 30 annotated objects from which the examples are chosen (`eligible`).
 The bootstrap draws all resamples from one generator before scoring them in parallel, so results do not depend on the number of workers.
 
 ## License
