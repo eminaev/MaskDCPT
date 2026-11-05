@@ -19,11 +19,12 @@ It also repeats the Study I matrix of five classical enhancement operators on BD
 | `scripts/enhance.py` | CLAHE, gamma correction, DCP, single-scale Retinex, and MSRCR with the parameters of Section 3.3 | Section 3.3 |
 | `scripts/enhancement_bootstrap.sh` | Enhancement of BDD100K with every operator and the paired bootstrap for three detectors and four subsets | Section 4.2, Table A6 |
 | `scripts/qualitative.py` | Selection of the example images and drawing of the qualitative figures | Section 4.5, Figures 7 and 8 |
+| `scripts/graphical_abstract.py` | Graphical abstract from the bootstrap results; the fine-tuning row uses the Study I numbers of Table 10 | Graphical abstract |
 | `scripts/pipeline_latency.py` | Latency of the detector, of M, and of the whole pipeline | Table 9 |
 | `scripts/study2.sh` | All steps above in order | — |
 | `options/local/` | Restoration test configs and YOLO dataset configs | — |
 | `results/yolo/*.json` | Bootstrap and latency results used in the paper | Tables 8, 9, and A6 |
-| `tests/` | Unit tests for the new architecture, loss, export, operators, parallel bootstrap, and box matching | — |
+| `tests/` | Unit tests for the new architecture, loss, export, operators, parallel bootstrap, box matching, and bootstrap reading | — |
 
 ## Environment
 
@@ -49,13 +50,14 @@ RESTORE_PYTHON=~/anaconda3/envs/maskdcpt/bin/python DETECT_PYTHON=~/anaconda3/en
 
 It writes about 48 GB of PNG images, and its bootstrap takes about five hours with 32 CPU workers.
 
-The qualitative figures need the restored and CLAHE images from both runners.
+The qualitative figures and the graphical abstract need the restored and CLAHE images from both runners.
 `select` picks the examples into `results/yolo/qualitative.json`, and the other two commands draw Figures 7 and 8 into the given folder:
 
 ```bash
 ~/anaconda3/envs/yolo/bin/python scripts/qualitative.py select
 ~/anaconda3/envs/yolo/bin/python scripts/qualitative.py appearance figures
 ~/anaconda3/envs/yolo/bin/python scripts/qualitative.py detections figures
+~/anaconda3/envs/yolo/bin/python scripts/graphical_abstract.py figures
 ```
 
 ## Weights
